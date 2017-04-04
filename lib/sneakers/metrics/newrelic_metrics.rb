@@ -11,24 +11,19 @@ module Sneakers
       end
 
       def increment(metric)
-        record_stat metric, 1
-      end
-
-      def record_stat(metric, num)
-        stats(metric).record_data_point(num)
+        metric.gsub! "\.", "\/"
+        NewrelicMetrics.eagent::Agent.increment_metric("Custom/#{metric}", 1)
       rescue Exception => e
-        puts "NewrelicMetrics#record_stat: #{e}"
+        puts "NewrelicMetrics#increment: #{e}"
       end
 
       def timing(metric, &block)
+        metric.gsub! "\.", "\/"
         start = Time.now
         block.call
-        record_stat(metric, ((Time.now - start)*1000).floor)
-      end
-
-      def stats(metric)
-        metric.gsub! "\.", "\/"
-        NewrelicMetrics.eagent::Agent.get_stats("Custom/#{metric}")
+        NewrelicMetrics.eagent::Agent.record_metric("Custom/#{metric}", ((Time.now - start) * 1000).floor)
+      rescue Exception => e
+        puts "NewrelicMetrics#timing: #{e}"
       end
 
     end
