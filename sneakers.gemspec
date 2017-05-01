@@ -11,6 +11,7 @@ Gem::Specification.new do |gem|
   gem.description   = %q( Fast background processing framework for Ruby and RabbitMQ )
   gem.summary       = %q( Fast background processing framework for Ruby and RabbitMQ )
   gem.homepage      = 'http://sneakers.io'
+  gem.license       = 'MIT'
   gem.required_ruby_version = Gem::Requirement.new(">= 2.0")
 
   gem.files         = `git ls-files`.split($/).reject { |f| f == 'Gemfile.lock' }
@@ -18,7 +19,7 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(/^(test|spec|features)\//)
   gem.require_paths = ['lib']
   gem.add_dependency 'serverengine', '~> 1.5.11'
-  gem.add_dependency 'bunny', '~> 2.2.0'
+  gem.add_dependency 'bunny', '~> 2.6.4'
   gem.add_dependency 'thread', '~> 0.1.7'
   gem.add_dependency 'thor'
 
@@ -27,8 +28,8 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'redis'
 
   gem.add_development_dependency 'rr'
+  gem.add_development_dependency 'unparser', '0.2.2' # keep below 0.2.5 for ruby 2.0 compat.
   gem.add_development_dependency 'ruby-prof'
-  gem.add_development_dependency 'nokogiri'
   gem.add_development_dependency 'guard-minitest'
   gem.add_development_dependency 'metric_fu'
   gem.add_development_dependency 'simplecov'

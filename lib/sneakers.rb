@@ -12,10 +12,12 @@ module Sneakers
 end
 
 require 'sneakers/configuration'
+require 'sneakers/errors'
 require 'sneakers/support/production_formatter'
 require 'sneakers/concerns/logging'
 require 'sneakers/concerns/metrics'
 require 'sneakers/handlers/oneshot'
+require 'sneakers/content_type'
 require 'sneakers/worker'
 require 'sneakers/publisher'
 
@@ -73,6 +75,16 @@ module Sneakers
 
   def configure_server
     yield self if server?
+  end
+
+  # Register a proc to handle any error which occurs within the Sneakers process.
+  #
+  #   Sneakers.error_reporters << proc {|ex,ctx_hash| MyErrorService.notify(ex, ctx_hash) }
+  #
+  # The default error handler logs errors to Sneakers.logger.
+  # Ripped off from https://github.com/mperham/sidekiq/blob/6ad6a3aa330deebd76c6cf0d353f66abd3bef93b/lib/sidekiq.rb#L165-L174
+  def error_reporters
+    CONFIG[:error_reporters]
   end
 
   private

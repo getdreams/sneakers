@@ -1,10 +1,16 @@
 require "sneakers"
 require 'open-uri'
-require 'nokogiri'
-
 require 'logger'
 
-Sneakers.configure :log => STDOUT
+def compose_or_localhost(key)
+  Resolv::DNS.new.getaddress(key)
+rescue 
+  "localhost"
+end
+
+rmq_addr = compose_or_localhost("rabbitmq")
+
+Sneakers.configure :log => STDOUT, :amqp => "amqp://guest:guest@#{rmq_addr}:5672"
 Sneakers.logger.level = Logger::INFO
 
 class TitleScraper
@@ -13,9 +19,16 @@ class TitleScraper
   from_queue 'downloads'
 
   def work(msg)
-    doc = Nokogiri::HTML(open(msg))
-    worker_trace "FOUND <#{doc.css('title').text}>"
+    title = extract_title(open(msg))
+    logger.info "FOUND <#{title}>"
     ack!
+  end
+
+  private
+
+  def extract_title(html)
+    html =~ /<title>(.*?)<\/title>/
+    $1
   end
 end
 

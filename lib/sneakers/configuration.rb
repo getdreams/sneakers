@@ -1,3 +1,4 @@
+require 'sneakers/error_reporter'
 require 'forwardable'
 
 module Sneakers
@@ -21,6 +22,10 @@ module Sneakers
     }.freeze
 
     DEFAULTS = {
+      # Set up default handler which just logs the error.
+      # Remove this in production if you don't want sensitive data logged.
+      :error_reporters => [Sneakers::ErrorReporter::DefaultLogger.new],
+
       # runner
       :runner_config_file => nil,
       :metrics            => nil,
@@ -29,7 +34,7 @@ module Sneakers
       :workers            => 4,
       :log                => STDOUT,
       :pid_path           => 'sneakers.pid',
-      :amqp_heartbeat     => 10,
+      :amqp_heartbeat     => 30,
 
       # workers
       :timeout_job_after  => 5,
@@ -37,7 +42,7 @@ module Sneakers
       :threads            => 10,
       :share_threads      => false,
       :ack                => true,
-      :heartbeat          => 2,
+      :heartbeat          => 30,
       :hooks              => {},
       :exchange           => 'sneakers',
       :exchange_options   => EXCHANGE_OPTION_DEFAULTS,

@@ -3,7 +3,6 @@ require 'sneakers'
 require 'sneakers/runner'
 require 'sneakers/metrics/newrelic_metrics'
 require 'open-uri'
-require 'nokogiri'
 require 'newrelic_rpm'
 
 # With this configuration will send two types of data to newrelic server:
@@ -22,19 +21,20 @@ class MetricsWorker
   from_queue 'downloads'
 
   def work(msg)
-    doc = Nokogiri::HTML(open(msg))
-    logger.info "FOUND <#{doc.css('title').text}>"
+    title = extract_title(open(msg))
+    logger.info "FOUND <#{title}>"
     ack!
   end
-  
-  add_transaction_tracer :work, name: 'MetricsWorker', params: 'args[0]'
 
+  add_transaction_tracer :work, name: 'MetricsWorker', params: 'args[0]', category: :task
+
+  private
+
+  def extract_title(html)
+    html =~ /<title>(.*?)<\/title>/
+    $1
+  end
 end
-
 
 r = Sneakers::Runner.new([ MetricsWorker ])
 r.run
-
-
-
-

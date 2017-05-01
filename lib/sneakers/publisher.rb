@@ -13,9 +13,8 @@ module Sneakers
       end
       to_queue = options.delete(:to_queue)
       options[:routing_key] ||= to_queue
-      Sneakers.logger.info {"publishing <#{msg.truncate(50)}> to [#{options[:routing_key]}]"}
-      Sneakers.logger.debug {"publishing <#{msg}> to [#{options[:routing_key]}]"}
-      @exchange.publish(msg, options)
+      Sneakers.logger.info {"publishing <#{msg}> to [#{options[:routing_key]}]"}
+      @exchange.publish(ContentType.serialize(msg, options[:content_type]), options)
     end
 
 
@@ -37,8 +36,10 @@ module Sneakers
     end
 
     def create_bunny_connection
-      Bunny.new(@opts[:amqp], :vhost => @opts[:vhost], :heartbeat => @opts[:heartbeat], :logger => Sneakers::logger)
+      Bunny.new(@opts[:amqp], :vhost => @opts[:vhost],
+                              :heartbeat => @opts[:heartbeat],
+                              :properties => @opts.fetch(:properties, {}),
+                              :logger => Sneakers::logger)
     end
   end
 end
-
